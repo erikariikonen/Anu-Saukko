@@ -2,4 +2,4 @@
 Bot for Discordjs
 
 ## TODO
-- [] JAMIX API
+- [ ] JAMIX API
