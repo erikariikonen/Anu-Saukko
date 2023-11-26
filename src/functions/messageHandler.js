@@ -100,13 +100,13 @@ async function handleMessageCreate(message) {
         connection.subscribe(player);
         player.play(resource);
 
+        message.reply('Okei! Tulen sanomaan asiasta. 👀')
+
         player.on('stateChange', (oldState, newState) => {
             if (newState.status === 'idle') {
                 connection.destroy();
             }
         });
-
-        message.reply('Okei! Tulen sanomaan asiasta. 👀')
     }
 }
 
