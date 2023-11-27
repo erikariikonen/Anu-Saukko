@@ -4,7 +4,7 @@ const { Client, IntentsBitField, } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const chatgptCommand = require('./functions/chatgptCommand.js');
-const { scheduleMessage } = require('./functions/scheduler.js');
+const { scheduleMessage } = require('./functions/scheduler');
 const { handleMessageCreate } = require('./functions/messageHandler.js');
 
 

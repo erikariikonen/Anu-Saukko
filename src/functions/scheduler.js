@@ -1,7 +1,5 @@
 const moment = require('moment-timezone');
 
-
-
 function scheduleMessage(client) {
     const helsinkiTimeZone = 'Europe/Helsinki';
     const now = moment().tz(helsinkiTimeZone);
@@ -28,24 +26,23 @@ function scheduleMessage(client) {
 
     setTimeout(() => {
         if (yleinenChannel) {
-            yleinenChannel.send('@everyone https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
+            yleinenChannel.send('https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
+        } else {
+            console.error('Cannot send message');
+        }
+        
+    }, delayaamu);
+
+    setTimeout(() => {
+        if (yleinenChannel) {
+            yleinenChannel.send('Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
         } else {
             console.error('Cannot send message');
         }
 
-        setTimeout(() => {
-            if (yleinenChannel) {
-                yleinenChannel.send('@everyone Ruokaa nami nami 😋\n- Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\n\n- Ellen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
-            } else {
-                console.error('Cannot send message');
-            }
+        scheduleMessage(client);
+    }, delaylounas);
 
-            // Schedule the next messages after both morning and lunch messages have been sent
-            scheduleMessage();
-        }, delaylounas);
-    }, delayaamu);
 }
 
-module.exports = {
-    scheduleMessage,
-};
+module.exports = {scheduleMessage};
