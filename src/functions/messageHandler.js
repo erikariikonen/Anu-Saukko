@@ -13,16 +13,21 @@ async function handleMessageCreate(client, message) {
     }
 
     const gptMessages = [];
-    const isIgnoredMessage =
-        message.content === 'anu pingaa kaikki' ||
-        message.content.startsWith('anu saako') ||
-        message.content === 'anu debug stop' ||
-        message.content.startsWith('anu sano') ||
-        message.content.startsWith('anu soita') ||
-        message.content === 'anu skippaa' ||
-        message.content === 'anu stoppaa' ||
-        message.content === 'anu skippaa kaikki' ||
-        message.content === 'anu soittolista';
+    const ignoredPatterns = [
+        /^anu pingaa kaikki$/i,
+        /^anu saako/i,
+        /^anu debug stop$/i,
+        /^anu sano/i,
+        /^anu soita/i,
+        /^anu skippaa$/i,
+        /^anu stoppaa$/i,
+        /^anu skippaa kaikki$/i,
+        /^anu soittolista$/i,
+        /^anu mitä soitat$/i,
+    ];
+    
+    const isIgnoredMessage = ignoredPatterns.some(pattern => pattern.test(message.content));
+    
 
     if (message.content === 'anu pingaa kaikki') {
         setTimeout(() => {
@@ -154,7 +159,6 @@ async function handleMessageCreate(client, message) {
         if (command === 'skippaa kaikki') {
             guildQueue.clearQueue();
         }
-
 
     }
 

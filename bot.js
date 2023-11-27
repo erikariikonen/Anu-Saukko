@@ -36,7 +36,9 @@ const player = new Player(client, {
 
 client.player = player;
 
-client.on('messageCreate', handleMessageCreate);
+client.on('messageCreate', (message) => {
+    handleMessageCreate(client, message);
+});
 
 const commands = [
     chatgptCommand.data.toJSON(),
