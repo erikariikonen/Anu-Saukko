@@ -4,8 +4,9 @@ const { Client, IntentsBitField, } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const chatgptCommand = require('./functions/chatgptCommand.js');
-const { scheduleMessage } = require('./functions/scheduler');
+const { scheduleMessage } = require('./functions/scheduler.js');
 const { handleMessageCreate } = require('./functions/messageHandler.js');
+const { Player } = require("discord-music-player");
 
 
 const token = process.env.DISCORDJS_BOT_TOKEN;
@@ -29,7 +30,15 @@ client.once('ready', () => {
     client.user.setActivity('If you are round, are you bucket proud?', { type: 'PLAYING' });
 });
 
-client.on('messageCreate', handleMessageCreate);
+const player = new Player(client, {
+    leaveOnEmpty: false, // This options are optional.
+});
+
+client.player = player;
+
+client.on('messageCreate', (message) => {
+    handleMessageCreate(client, message);
+});
 
 const commands = [
     chatgptCommand.data.toJSON(),

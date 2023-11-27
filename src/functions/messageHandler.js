@@ -1,9 +1,11 @@
 const countTokens = require('../openai/count-tokens.js');
 const openai = require('../openai/openai.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState } = require('@discordjs/voice');
 const path = require('path');
+const { RepeatMode } = require("discord-music-player");
 
-async function handleMessageCreate(message) {
+
+async function handleMessageCreate(client, message) {
     const delay = 1000;
 
     if (message.author === message.client.user) {
@@ -15,7 +17,12 @@ async function handleMessageCreate(message) {
         message.content === 'anu pingaa kaikki' ||
         message.content.startsWith('anu saako') ||
         message.content === 'anu debug stop' ||
-        message.content.startsWith('anu sano');
+        message.content.startsWith('anu sano') ||
+        message.content.startsWith('anu soita') ||
+        message.content === 'anu skippaa' ||
+        message.content === 'anu stoppaa' ||
+        message.content === 'anu skippaa kaikki' ||
+        message.content === 'anu soittolista';
 
     if (message.content === 'anu pingaa kaikki') {
         setTimeout(() => {
@@ -94,20 +101,64 @@ async function handleMessageCreate(message) {
             adapterCreator: message.guild.voiceAdapterCreator,
         });
 
-        const player = createAudioPlayer();
+        const speech = createAudioPlayer();
         const resource = createAudioResource(mp3Path);
 
-        connection.subscribe(player);
-        player.play(resource);
+        connection.subscribe(speech);
+        speech.play(resource);
 
         message.reply('Okei! Tulen sanomaan asiasta. 👀')
 
-        player.on('stateChange', (oldState, newState) => {
+        speech.on('stateChange', (oldState, newState) => {
             if (newState.status === 'idle') {
                 connection.destroy();
             }
         });
     }
+
+    if (message.content.startsWith('anu')) {
+        const args = message.content.slice('anu'.length).trim().split(/ +/);
+        const command = args.shift().toLowerCase();
+        let guildQueue = client.player.getQueue(message.guild.id);
+
+        if(command === 'soita') {
+            let queue = client.player.createQueue(message.guild.id);
+            await queue.join(message.member.voice.channel);
+            let song = await queue.play(args.join(' ')).catch(err => {
+                console.log(err);
+                if(!guildQueue)
+                    queue.stop();
+            });
+
+        }
+
+        if(command === 'soittolista') {
+            let queue = client.player.createQueue(message.guild.id);
+            await queue.join(message.member.voice.channel);
+            let song = await queue.play(args.join(' ')).catch(err => {
+                console.log(err);
+                if(!guildQueue)
+                    queue.stop();
+            });
+
+        }
+
+        if(command === 'skippaa') {
+            guildQueue.skip();
+        }
+
+        if (command === 'stoppaa') {
+            guildQueue.stop();
+        }
+
+        if (command === 'skippaa kaikki') {
+            guildQueue.clearQueue();
+        }
+
+
+    }
+
+
 }
 
 module.exports = {
