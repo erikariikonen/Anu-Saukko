@@ -6,7 +6,7 @@ function scheduleMessage(client) {
     const yleinenChannel = client.channels.cache.get(process.env.YLEINEN_ID);
 
     let aamu = moment().tz(helsinkiTimeZone).set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
-    let lounas = moment().tz(helsinkiTimeZone).set({ hour: 10, minute: 30, second: 0, millisecond: 0 });
+    let lounas = moment().tz(helsinkiTimeZone).set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
 
     if (now.day() === 6 || now.day() === 0) {
         console.log("It's the weekend, skipping lounas message.");

@@ -4,6 +4,8 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState } 
 const path = require('path');
 const { RepeatMode } = require("discord-music-player");
 const fs = require('fs');
+const { getTodaysFood } = require('../jamix/jamix.js');
+const { EmbedBuilder } = require('discord.js');
 
 
 async function handleMessageCreate(client, message) {
@@ -25,7 +27,7 @@ async function handleMessageCreate(client, message) {
         /^anu skippaa kaikki$/i,
         /^anu soittolista$/i,
         /^anu mitä soitat$/i,
-        /^anu ruokalista$/i,
+        /^anu ruokalista/i,
         /^anu help$/i,
         /^anu mitä osaat sanoa$/i,
     ];
@@ -41,16 +43,9 @@ async function handleMessageCreate(client, message) {
         }, delay);
     }
 
-
     if (message.content === 'anu pingaa kaikki') {
         setTimeout(() => {
             message.reply('@everyone');
-        }, delay);
-    }
-
-    if (message.content === 'anu ruokalista') {
-        setTimeout(() => {
-            message.reply('Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
         }, delay);
     }
 
@@ -204,9 +199,54 @@ async function handleMessageCreate(client, message) {
 
     }
 
+    if (message.content.toLowerCase().startsWith('anu ruokalista')) {
+        const args = message.content.slice('anu ruokalista'.length).trim().split(/ +/);
+        const command = args.shift().toLowerCase();
+        const signeMenu = await getTodaysFood('signe');
+        const ellenMenu = await getTodaysFood('ellen');
 
+        if(!command) {
+            const embed = new EmbedBuilder()
+            .setTitle('Anu S:n antimet tänään 😎')
+            .addFields(
+                { name: '**`Signe`**', value: signeMenu },
+                { name: '**`Ellen`**', value: ellenMenu }
+            )
+            .setColor(getRandomColor());
+            message.reply({ embeds: [embed] });
+        }
+
+        if(command === 'signe') {
+            const embed = new EmbedBuilder()
+            .setTitle('Anu S:n antimet tänään 😎')
+            .addFields({ name: '**`Signe`**', value: signeMenu })
+            .setImage('https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+            .setColor(getRandomColor())
+            .setFooter({text:'https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4'});
+            message.reply({ embeds: [embed] });
+        }
+
+        
+        if(command === 'ellen') {
+            const embed = new EmbedBuilder()
+            .setTitle('Anu S:n antimet tänään 😎')
+            .addFields({ name: '**`Ellen`**', value: ellenMenu })
+            .setColor(getRandomColor());
+        message.reply({ embeds: [embed] });
+        }
+
+        
+    }
+    
+    // random color juttu nopeest tähä 🥶🍦
+    function getRandomColor() {
+        const rainbowColors = [
+            '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'
+        ];
+        
+        const randomIndex = Math.floor(Math.random() * rainbowColors.length);
+        return rainbowColors[randomIndex];
+    }
 }
 
-module.exports = {
-    handleMessageCreate,
-};
+module.exports = { handleMessageCreate };
