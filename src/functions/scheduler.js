@@ -1,12 +1,17 @@
 const moment = require('moment-timezone');
+const { getTodaysFood } = require('../jamix/jamix.js');
+const { EmbedBuilder } = require('discord.js');
+const { getRandomColor } = require('./randomColor.js')
 
-function scheduleMessage(client) {
+async function scheduleMessage(client) {
     const helsinkiTimeZone = 'Europe/Helsinki';
     const now = moment().tz(helsinkiTimeZone);
     const yleinenChannel = client.channels.cache.get(process.env.YLEINEN_ID);
+    const signeMenu = await getTodaysFood('signe');
+    const ellenMenu = await getTodaysFood('ellen');
 
     let aamu = moment().tz(helsinkiTimeZone).set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
-    let lounas = moment().tz(helsinkiTimeZone).set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+    let lounas = moment().tz(helsinkiTimeZone).set({ hour: 14, minute: 37, second: 0, millisecond: 0 });
 
     if (now.day() === 6 || now.day() === 0) {
         console.log("It's the weekend, skipping lounas message.");
@@ -28,16 +33,25 @@ function scheduleMessage(client) {
         if (yleinenChannel) {
             yleinenChannel.send('@everyone https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
         } else {
-            console.error('Cannot send message');
+            console.error('Cannot send aamu');
         }
         
     }, delayaamu);
 
     setTimeout(() => {
         if (yleinenChannel) {
-            yleinenChannel.send('@everyone\nSigne ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
+            const embed = new EmbedBuilder()
+            .setTitle('Anu S:n antimet tänään 😎')
+            .addFields(
+                { name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' },
+                { name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' }
+            )
+            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+            .setImage('https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+            .setColor(getRandomColor());
+            yleinenChannel.send({ content:'@everyone', embeds: [embed] });
         } else {
-            console.error('Cannot send message');
+            console.error('Cannot send lounas');
         }
 
         scheduleMessage(client);

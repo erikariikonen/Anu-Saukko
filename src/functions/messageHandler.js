@@ -209,9 +209,11 @@ async function handleMessageCreate(client, message) {
             const embed = new EmbedBuilder()
             .setTitle('Anu S:n antimet tänään 😎')
             .addFields(
-                { name: '**`Signe`**', value: signeMenu },
-                { name: '**`Ellen`**', value: ellenMenu }
+                { name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' },
+                { name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' }
             )
+            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+            .setImage('https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
             .setColor(getRandomColor());
             message.reply({ embeds: [embed] });
         }
@@ -219,34 +221,51 @@ async function handleMessageCreate(client, message) {
         if(command === 'signe') {
             const embed = new EmbedBuilder()
             .setTitle('Anu S:n antimet tänään 😎')
-            .addFields({ name: '**`Signe`**', value: signeMenu })
-            .setImage('https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+            .addFields({ name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' })
+            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+            .setImage('https://www.salpaus.fi/wp-content/uploads/2022/02/Signe-900x900-1-scaled.jpg')
             .setColor(getRandomColor())
-            .setFooter({text:'https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4'});
             message.reply({ embeds: [embed] });
         }
-
         
         if(command === 'ellen') {
             const embed = new EmbedBuilder()
             .setTitle('Anu S:n antimet tänään 😎')
-            .addFields({ name: '**`Ellen`**', value: ellenMenu })
+            .addFields({ name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' })
+            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+            .setImage('https://www.salpaus.fi/wp-content/uploads/2017/10/Kampus1profiili-900x900.jpg')
             .setColor(getRandomColor());
         message.reply({ embeds: [embed] });
         }
-
         
     }
-    
-    // random color juttu nopeest tähä 🥶🍦
-    function getRandomColor() {
-        const rainbowColors = [
-            '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'
+
+    const randomNum = Math.random();
+    const reactionProbability = 0.01;
+
+    if (randomNum < reactionProbability) {
+        // list
+        const emojis = [
+            '😄', '😍', '🎉', '👍', '🌟', '❤️', '🚀', '🐱', '🍕', '🎶',
+            '🔥', '🌈', '👏', '💡', '🍦', '🎨', '🎸', '💻',
         ];
-        
-        const randomIndex = Math.floor(Math.random() * rainbowColors.length);
-        return rainbowColors[randomIndex];
+
+        // Face emojis (U+1F600 to U+1F64F)
+        for (let i = 0x1F600; i <= 0x1F64F; i++) {
+            emojis.push(String.fromCodePoint(i));
+        }
+
+        // Hand emojis (U+1F91A to U+1F93E)
+        for (let i = 0x1F91A; i <= 0x1F93E; i++) {
+            emojis.push(String.fromCodePoint(i));
+        }
+
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+        message.react(randomEmoji)
+            .then(() => console.log(`Reacted with ${randomEmoji}`))
+            .catch(console.error);
     }
 }
 
-module.exports = { handleMessageCreate };
+module.exports = { handleMessageCreate, };
