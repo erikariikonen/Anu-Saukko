@@ -3,4 +3,5 @@ Bot for Discordjs
 
 ## TODO
 - [ ] JAMIX API
-- [ ] Music player
+- [x] Music player
+- [x] anu help
