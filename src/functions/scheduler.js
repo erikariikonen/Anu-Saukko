@@ -35,7 +35,7 @@ function scheduleMessage(client) {
 
     setTimeout(() => {
         if (yleinenChannel) {
-            yleinenChannel.send('@everyone Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
+            yleinenChannel.send('@everyone\nSigne ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
         } else {
             console.error('Cannot send message');
         }
