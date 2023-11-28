@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { Client, IntentsBitField, } = require('discord.js');
+const { Client, IntentsBitField, ActivityType, } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const chatgptCommand = require('./functions/chatgptCommand.js');
@@ -28,7 +28,10 @@ const client = new Client({
 client.once('ready', () => {
     console.log(`${client.user.tag} on hereillä.`);
     scheduleMessage(client);
-    client.user.setActivity('If you are round, are you bucket proud?', { type: 'PLAYING' });
+    client.user.setActivity({
+        name: 'Neekaboom 💥',
+        type: ActivityType.Watching,
+    });
 });
 
 const player = new Player(client, {
