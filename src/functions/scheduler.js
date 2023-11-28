@@ -26,7 +26,7 @@ function scheduleMessage(client) {
 
     setTimeout(() => {
         if (yleinenChannel) {
-            yleinenChannel.send('https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
+            yleinenChannel.send('@everyone https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
         } else {
             console.error('Cannot send message');
         }
@@ -35,7 +35,7 @@ function scheduleMessage(client) {
 
     setTimeout(() => {
         if (yleinenChannel) {
-            yleinenChannel.send('Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
+            yleinenChannel.send('@everyone Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
         } else {
             console.error('Cannot send message');
         }

@@ -3,6 +3,7 @@ const openai = require('../openai/openai.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState } = require('@discordjs/voice');
 const path = require('path');
 const { RepeatMode } = require("discord-music-player");
+const fs = require('fs');
 
 
 async function handleMessageCreate(client, message) {
@@ -24,16 +25,35 @@ async function handleMessageCreate(client, message) {
         /^anu skippaa kaikki$/i,
         /^anu soittolista$/i,
         /^anu mitä soitat$/i,
+        /^anu ruokalista$/i,
+        /^anu help$/i,
+        /^anu mitä osaat sanoa$/i,
     ];
     
     const isIgnoredMessage = ignoredPatterns.some(pattern => pattern.test(message.content));
     
+
+    if (message.content === 'anu help') {
+        setTimeout(() => {
+            message.reply(
+                'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu x\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista\n4. 🤙 - anu saako x\n5. 🤔 - anu sano x\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita x/linkki\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
+                );
+        }, delay);
+    }
+
 
     if (message.content === 'anu pingaa kaikki') {
         setTimeout(() => {
             message.reply('@everyone');
         }, delay);
     }
+
+    if (message.content === 'anu ruokalista') {
+        setTimeout(() => {
+            message.reply('Signe ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=7&mt=4\nEllen ruokalista: https://fi.jamix.cloud/apps/menu/?anro=97325&k=6&mt=4');
+        }, delay);
+    }
+
 
     const regex = /^anu saako (.+)$/i;
     const match = message.content.match(regex);
@@ -50,34 +70,36 @@ async function handleMessageCreate(client, message) {
 
     let hasRepliedToAnu = false;
 
-    const isAnuMessage = message.content.startsWith('anu') && !isIgnoredMessage;
-
+    const isAnuMessage = message.content.toLowerCase().startsWith('anu') && !isIgnoredMessage;
+    
     if (isAnuMessage && !hasRepliedToAnu) {
         const messages = (
             await message.channel.messages.fetch({ limit: 25 })
         ).reverse();
-
+    
         const maxTokens = 4096; // gpt-3.5-turbo
         let totalTokens = 0;
-
-        const anuMessages = messages.filter((msg) => msg.content.startsWith('anu'));
-
+    
+        const anuMessages = messages.filter((msg) => msg.content.startsWith('anu') && !isIgnoredMessage);
+    
         anuMessages.forEach((message) => {
-            const tokens = countTokens(message.content);
-
-            if (totalTokens + tokens < maxTokens) {
-                totalTokens += tokens;
-
-                gptMessages.push({
-                    role: message.author.bot ? 'assistant' : 'user',
-                    content: message.content,
-                });
+            if (!ignoredPatterns.some(pattern => pattern.test(message.content))) {
+                const tokens = countTokens(message.content);
+    
+                if (totalTokens + tokens < maxTokens) {
+                    totalTokens += tokens;
+    
+                    gptMessages.push({
+                        role: message.author.bot ? 'assistant' : 'user',
+                        content: message.content,
+                    });
+                }
             }
         });
-
+    
         let response = await openai(gptMessages);
 
-        console.log(gptMessages, '\x1b[33m Anu sanoi: ' + response.toString());
+        console.log(gptMessages, '\x1b[33m Anu sanoi: ' + response.toString() + '\x1b[0m');
 
         message.reply({
             content: response,
@@ -118,6 +140,26 @@ async function handleMessageCreate(client, message) {
             if (newState.status === 'idle') {
                 connection.destroy();
             }
+        });
+    } else if (message.content.startsWith('anu mitä osaat sanoa')) {
+        const mediaFolder = path.join(__dirname, '..', 'media');
+    
+        fs.readdir(mediaFolder, (err, files) => {
+            if (err) {
+                console.error('Error reading media folder:', err);
+                return message.channel.send('En ole varma tällä hetkelle. Koita uudestaan myöhemmin!');
+            }
+    
+            const mp3Files = files.filter(file => file.endsWith('.mp3'));
+            if (mp3Files.length === 0) {
+                return message.channel.send('En osaa sanoa mitään!');
+            }
+    
+            const fileNames = mp3Files.map(file => file.replace('.mp3', ''));
+            const replyMessage = `Voin sanoa seuraavat asiat: ${fileNames.join(', ')}.`;
+            setTimeout (() => {
+            message.channel.send(replyMessage);
+            }, delay);
         });
     }
 
