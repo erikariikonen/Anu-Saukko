@@ -226,47 +226,7 @@ async function handleMessageCreate(client, message) {
 
         if (command === 'skippaa kaikki') {
             guildQueue.clearQueue();
-        }
-
-        // if (command === 'poistaviestit') {
-        //     try {
-        //         const maxToDelete = 100;
-        //         let totalDeleted = 0;
-        
-        //         // Manually set the beforeMessageId to a specific message ID
-        //         let beforeMessageId = '1180068784992686080'; // Replace with the desired message ID
-        
-        //         while (totalDeleted < maxToDelete) {
-        //             const messages = await message.channel.messages.fetch({ limit: 100, before: beforeMessageId });
-        //             const botOwnMessages = messages.filter(m => m.author.id === client.user.id);
-        
-        //             if (botOwnMessages.size === 0) {
-        //                 break;
-        //             }
-        
-        //             for (const msg of botOwnMessages.values()) {
-        //                 await msg.delete();
-        //                 totalDeleted++;
-        
-        //                 // Add a short delay between deletions to avoid rate limits
-        //                 await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        //                 // Update the console log every 20 messages
-        //                 if (totalDeleted % 20 === 0) {
-        //                     console.log(`Deleted ${totalDeleted} messages...`);
-        //                 }
-        //             }
-        
-        //             // Set the beforeMessageId to the oldest message ID in the current fetch
-        //             beforeMessageId = botOwnMessages.lastKey();
-        //         }
-        
-        //         console.log(`Total messages deleted: ${totalDeleted}`);
-        //     } catch (error) {
-        //         console.error(`Error clearing messages: ${error}`);
-        //     }
-        // }
-        
+        }   
         
         if (command === '!kys!!') {
             message.reply ('Ei vittu sit 🤬🤬🤬').then(() => {
