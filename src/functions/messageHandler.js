@@ -6,6 +6,9 @@ const { RepeatMode } = require("discord-music-player");
 const fs = require('fs');
 const { getTodaysFood } = require('../jamix/jamix.js');
 const { EmbedBuilder } = require('discord.js');
+const { getRandomColor } = require('./randomColor.js');
+const axios = require('axios');
+
 
 
 async function handleMessageCreate(client, message) {
@@ -14,6 +17,10 @@ async function handleMessageCreate(client, message) {
     if (message.author === message.client.user) {
         return;
     }
+
+    let lastRequestTime = null;
+    const requestLimit = 500; // API requests per minute
+    let requestCount = 0;
 
     const gptMessages = [];
     const ignoredPatterns = [
@@ -30,12 +37,14 @@ async function handleMessageCreate(client, message) {
         /^anu ruokalista/i,
         /^anu help$/i,
         /^anu mitä osaat sanoa$/i,
+        /^anu poistaviestit$/i,
+        /^anu !kys!!$/i,
     ];
     
     const isIgnoredMessage = ignoredPatterns.some(pattern => pattern.test(message.content));
     
 
-    if (message.content === 'anu help') {
+    if (message.content.toLowerCase() === 'anu help') {
         setTimeout(() => {
             message.reply(
                 'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu x\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista | *signe*, *ellen*\n4. 🤙 - anu saako x\n5. 🤔 - anu sano x\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita x/linkki\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
@@ -43,7 +52,7 @@ async function handleMessageCreate(client, message) {
         }, delay);
     }
 
-    if (message.content === 'anu pingaa kaikki') {
+    if (message.content.toLowerCase() === 'anu pingaa kaikki') {
         setTimeout(() => {
             message.reply('@everyone');
         }, delay);
@@ -51,7 +60,7 @@ async function handleMessageCreate(client, message) {
 
 
     const regex = /^anu saako (.+)$/i;
-    const match = message.content.match(regex);
+    const match = message.content.toLowerCase().match(regex);
 
     if (match) {
         const responses = ['Kyllä!! 😊😊', 'Minun mielestä saa 🤗', 'Salee 😎', 'Jos kysyt nätisti 👉👈', 'Ei!!! Grr 😡', 'Et uskaltaisi!! Nössö 😈', 'En suosittele ✋👮', 'Ehkäpä 😉', 'Ei saa!! 😔😭','Riippuu siitä, kuka kysyy 🤭'];
@@ -65,9 +74,21 @@ async function handleMessageCreate(client, message) {
 
     let hasRepliedToAnu = false;
 
-    const isAnuMessage = message.content.toLowerCase().startsWith('anu') && !isIgnoredMessage;
+    const isAnuMessage = message.content.toLowerCase().startsWith('anu ') && !isIgnoredMessage;
     
     if (isAnuMessage && !hasRepliedToAnu) {
+
+        if (lastRequestTime !== null) {
+            const currentTime = new Date();
+            const timeDifference = currentTime - lastRequestTime;
+            const timeRemaining = 60000 - timeDifference; // 60 seconds in milliseconds
+    
+            if (timeRemaining > 0) {
+                console.log(`Rate limit reached. Pausing for ${timeRemaining / 1000} seconds.`);
+                return; // Pause the script
+            }
+        }
+
         const messages = (
             await message.channel.messages.fetch({ limit: 25 })
         ).reverse();
@@ -75,7 +96,7 @@ async function handleMessageCreate(client, message) {
         const maxTokens = 4096; // gpt-3.5-turbo
         let totalTokens = 0;
     
-        const anuMessages = messages.filter((msg) => msg.content.startsWith('anu') && !isIgnoredMessage);
+        const anuMessages = messages.filter((msg) => msg.content.toLowerCase().startsWith('anu ') && !isIgnoredMessage);
     
         anuMessages.forEach((message) => {
             if (!ignoredPatterns.some(pattern => pattern.test(message.content))) {
@@ -94,6 +115,16 @@ async function handleMessageCreate(client, message) {
     
         let response = await openai(gptMessages);
 
+        requestCount += 1;
+        lastRequestTime = new Date();
+
+        if (requestCount >= requestLimit) {
+            console.log(`Rate limit reached. Pausing for 60 seconds.`);
+            requestCount = 0;
+            lastRequestTime = new Date();
+            return; // Pause the script
+        }
+
         console.log(gptMessages, '\x1b[33m Anu sanoi: ' + response.toString() + '\x1b[0m');
 
         message.reply({
@@ -109,7 +140,7 @@ async function handleMessageCreate(client, message) {
         return;
     }
 
-    if (message.content.startsWith('anu sano')) {
+    if (message.content.toLowerCase().startsWith('anu sano')) {
         const command = message.content.slice('anu sano'.length).trim().toLowerCase();
         const mp3Path = path.join(__dirname, '..', 'media', `${command}.mp3`);
 
@@ -136,7 +167,7 @@ async function handleMessageCreate(client, message) {
                 connection.destroy();
             }
         });
-    } else if (message.content.startsWith('anu mitä osaat sanoa')) {
+    } else if (message.content.toLowerCase().startsWith('anu mitä osaat sanoa')) {
         const mediaFolder = path.join(__dirname, '..', 'media');
     
         fs.readdir(mediaFolder, (err, files) => {
@@ -158,7 +189,7 @@ async function handleMessageCreate(client, message) {
         });
     }
 
-    if (message.content.startsWith('anu')) {
+    if (message.content.toLowerCase().startsWith('anu')) {
         const args = message.content.slice('anu'.length).trim().split(/ +/);
         const command = args.shift().toLowerCase();
         let guildQueue = client.player.getQueue(message.guild.id);
@@ -197,6 +228,56 @@ async function handleMessageCreate(client, message) {
             guildQueue.clearQueue();
         }
 
+        // if (command === 'poistaviestit') {
+        //     try {
+        //         const maxToDelete = 100;
+        //         let totalDeleted = 0;
+        
+        //         // Manually set the beforeMessageId to a specific message ID
+        //         let beforeMessageId = '1180068784992686080'; // Replace with the desired message ID
+        
+        //         while (totalDeleted < maxToDelete) {
+        //             const messages = await message.channel.messages.fetch({ limit: 100, before: beforeMessageId });
+        //             const botOwnMessages = messages.filter(m => m.author.id === client.user.id);
+        
+        //             if (botOwnMessages.size === 0) {
+        //                 break;
+        //             }
+        
+        //             for (const msg of botOwnMessages.values()) {
+        //                 await msg.delete();
+        //                 totalDeleted++;
+        
+        //                 // Add a short delay between deletions to avoid rate limits
+        //                 await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        //                 // Update the console log every 20 messages
+        //                 if (totalDeleted % 20 === 0) {
+        //                     console.log(`Deleted ${totalDeleted} messages...`);
+        //                 }
+        //             }
+        
+        //             // Set the beforeMessageId to the oldest message ID in the current fetch
+        //             beforeMessageId = botOwnMessages.lastKey();
+        //         }
+        
+        //         console.log(`Total messages deleted: ${totalDeleted}`);
+        //     } catch (error) {
+        //         console.error(`Error clearing messages: ${error}`);
+        //     }
+        // }
+        
+        
+        if (command === '!kys!!') {
+            message.reply ('Ei vittu sit 🤬🤬🤬').then(() => {
+
+                client.destroy();
+                process.exit();
+
+            }).catch(error => { 
+                console.error(`Anu is immortal\n${error}`); 
+            });
+        }
     }
 
     if (message.content.toLowerCase().startsWith('anu ruokalista')) {
@@ -247,7 +328,7 @@ async function handleMessageCreate(client, message) {
         // list
         const emojis = [
             '😄', '😍', '🎉', '👍', '🌟', '❤️', '🚀', '🐱', '🍕', '🎶',
-            '🔥', '🌈', '👏', '💡', '🍦', '🎨', '🎸', '💻',
+            '🔥', '🌈', '👏', '💡', '🍦', '🎨', '🎸', '💻', '🦦',
         ];
 
         // Face emojis (U+1F600 to U+1F64F)
@@ -263,7 +344,7 @@ async function handleMessageCreate(client, message) {
         const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
         message.react(randomEmoji)
-            .then(() => console.log(`Reacted with ${randomEmoji}`))
+            .then(() => console.log(`Reacted with ${randomEmoji} to ${message.author.tag}'s message: ${message.content}`))
             .catch(console.error);
     }
 }
