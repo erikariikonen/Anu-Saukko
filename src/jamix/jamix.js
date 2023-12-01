@@ -24,28 +24,29 @@ const getTodaysFood = async (restaurant) => {
     });
 
     if (!todayMenu) {
-      throw new Error('No menu data available for today.');
+      return '';
     }
 
     const mealOptions = todayMenu.days.find(day => day.weekday === currentDayOfWeek).mealoptions;
 
     if (!mealOptions || mealOptions.length === 0) {
-      throw new Error('No meal options available for today.');
+      return '';
     }
 
     const todayFood = mealOptions.map(option => {
-        const menuItemsWithDiets = option.menuItems.map(item => {
-            const diets = item.diets ? ` (${item.diets.replace(/\s/g, '')})` : '';
-            const itemWithDiets = `**${item.name}**${diets}`;
-            return itemWithDiets;
-        });
-        return menuItemsWithDiets.join('\n');
+      const menuItemsWithDiets = option.menuItems.map(item => {
+        const diets = item.diets ? ` (${item.diets.replace(/\s/g, '')})` : '';
+        const itemWithDiets = `**${item.name}**${diets}`;
+        return itemWithDiets;
+      });
+      return menuItemsWithDiets.join('\n');
     }).join('\n\n');
     
     return todayFood;
   } catch (error) {
     console.error('Error fetching data from Jamix API:', error);
-    throw new Error('An error occurred while fetching today\'s food.');
+    // Don't throw an error here, just return an empty string
+    return '';
   }
 };
 

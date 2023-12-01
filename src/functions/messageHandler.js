@@ -127,11 +127,22 @@ async function handleMessageCreate(client, message) {
 
         console.log(gptMessages, '\x1b[33m Anu sanoi: ' + response.toString() + '\x1b[0m');
 
-        message.reply({
-            content: response,
-        });
+
+        const responseContent = response.toString();
+        const responseChunks = splitTextIntoChunks(responseContent, 2000);
+
+        for (const chunk of responseChunks) {
+            message.reply({
+                content: chunk,
+            });
+        }
 
         hasRepliedToAnu = true;
+        
+        function splitTextIntoChunks(text, chunkSize) {
+            const regex = new RegExp(`.{1,${chunkSize}}`, 'g');
+            return text.match(regex) || [];
+        }
     }
 
     if (message.content === 'anu debug stop') {
