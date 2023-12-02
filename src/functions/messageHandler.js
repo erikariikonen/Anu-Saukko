@@ -129,7 +129,7 @@ async function handleMessageCreate(client, message) {
 
 
         const responseContent = response.toString();
-        const responseChunks = splitTextIntoChunks(responseContent, 2000);
+        const responseChunks = splitTextIntoChunks(responseContent);
 
         for (const chunk of responseChunks) {
             message.reply({
@@ -139,9 +139,15 @@ async function handleMessageCreate(client, message) {
 
         hasRepliedToAnu = true;
         
-        function splitTextIntoChunks(text, chunkSize) {
-            const regex = new RegExp(`.{1,${chunkSize}}`, 'g');
-            return text.match(regex) || [];
+        function splitTextIntoChunks(text) {
+            const chunkSize = 2000;
+            const chunks = [];
+        
+            for (let i = 0; i < text.length; i += chunkSize) {
+                chunks.push(text.slice(i, i + chunkSize));
+            }
+        
+            return chunks;
         }
     }
 

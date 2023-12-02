@@ -7,8 +7,6 @@ async function scheduleMessage(client) {
     const helsinkiTimeZone = 'Europe/Helsinki';
     const now = moment().tz(helsinkiTimeZone);
     const yleinenChannel = client.channels.cache.get(process.env.YLEINEN_ID);
-    const signeMenu = await getTodaysFood('signe');
-    const ellenMenu = await getTodaysFood('ellen');
 
     let aamu = moment().tz(helsinkiTimeZone).set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
     let lounas = moment().tz(helsinkiTimeZone).set({ hour: 10, minute: 0, second: 0, millisecond: 0 });
@@ -28,15 +26,35 @@ async function scheduleMessage(client) {
     const delayaamu = aamu.diff(now);
     const delaylounas = lounas.diff(now);
 
+    console.log('Current day:', now.format('dddd'));
+    console.log('Current time:', now.format('HH:mm:ss'));
+    console.log('Scheduled aamu:', aamu.format('dddd HH:mm:ss'));
+    console.log('Scheduled lounas:', lounas.format('dddd HH:mm:ss'));
+    console.log('Delay for aamu:', moment.duration(delayaamu).humanize());
+    console.log('Delay for lounas:', moment.duration(delaylounas).humanize());
+
     setTimeout(() => {
         if (yleinenChannel) {
             yleinenChannel.send('@everyone https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif');
+            console.log('Sent aamu message.');
         } else {
-            console.error('Cannot send aamu');
+            console.error('Cannot send aamu.');
         }
 
-        scheduleNextMessage(client);
+
+        if (now.day() !== 6 && now.day() !== 0 && now.isBefore(lounas)) {
+            scheduleLounasMessage(client, delaylounas);
+        } else {
+            console.log("No lunch today, koska viikonloppu!! 😎");
+            scheduleNextMessage(client);
+        }
     }, delayaamu);
+}
+
+async function scheduleLounasMessage(client, delay) {
+    const yleinenChannel = client.channels.cache.get(process.env.YLEINEN_ID);
+    const signeMenu = await getTodaysFood('signe');
+    const ellenMenu = await getTodaysFood('ellen');
 
     setTimeout(() => {
         if (yleinenChannel) {
@@ -55,11 +73,10 @@ async function scheduleMessage(client) {
         }
 
         scheduleNextMessage(client);
-    }, delaylounas);
+    }, delay);
 }
 
 function scheduleNextMessage(client) {
-    
     const now = moment().tz('Europe/Helsinki');
     const nextDay = now.add(1, 'day').set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
     const delayNextDay = nextDay.diff(now);
