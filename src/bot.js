@@ -12,6 +12,7 @@ const { Player } = require("discord-music-player");
 const token = process.env.DISCORDJS_BOT_TOKEN;
 const app = process.env.APP_ID
 const pogoy = process.env.GUILD_ID
+const yleinenChannel = process.env.YLEINEN_ID
 
 
 const client = new Client({
@@ -27,7 +28,7 @@ const client = new Client({
 
 client.once('ready', () => {
     console.log(`${client.user.tag} on hereillä.`);
-    scheduleMessage(client);
+    scheduleMessage(client, yleinenChannel);
     client.user.setActivity({
         name: 'Neekaboom 💥',
         type: ActivityType.Watching,

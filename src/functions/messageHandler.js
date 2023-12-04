@@ -74,7 +74,7 @@ async function handleMessageCreate(client, message) {
 
     let hasRepliedToAnu = false;
 
-    const isAnuMessage = message.content.toLowerCase().startsWith('anu ') && !isIgnoredMessage;
+    const isAnuMessage = message.content.toLowerCase().startsWith('anu ') && !isIgnoredMessage && !(message.author === message.client.user);
     
     if (isAnuMessage && !hasRepliedToAnu) {
 
@@ -321,7 +321,7 @@ async function handleMessageCreate(client, message) {
         const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
         message.react(randomEmoji)
-            .then(() => console.log(`Reacted with ${randomEmoji} to ${message.author.tag}'s message: ${message.content}`))
+            .then(() => console.log(`\x1b[1;36mAnu reacted with ${randomEmoji} to ${message.author.tag}'s message: ${message.content}\x1b[0m`))
             .catch(console.error);
     }
 }

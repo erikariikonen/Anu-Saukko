@@ -1,4 +1,5 @@
 ffmpeg.exe
+schedulerold.js
 
 # local env files
 .env
