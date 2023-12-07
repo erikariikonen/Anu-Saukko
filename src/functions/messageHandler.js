@@ -1,12 +1,12 @@
-const countTokens = require('../openai/count-tokens.js');
-const openai = require('../openai/openai.js');
+const countTokens = require('../APIs/openai/count-tokens.js');
+const openai = require('../APIs/openai/openai.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState } = require('@discordjs/voice');
 const path = require('path');
 const fs = require('fs');
-const { getTodaysFood } = require('../jamix/jamix.js');
+const { getTodaysFood } = require('../APIs/jamix/jamix.js');
 const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('./randomColor.js');
-const { searchImage } = require('../bing/bingImageSearch.js');
+const { searchImage } = require('../APIs/bing/bingImageSearch.js');
 
 
 

@@ -1,8 +1,8 @@
 const moment = require('moment-timezone');
 const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('./randomColor.js');
-const { getTodaysFood } = require('../jamix/jamix.js');
-const { searchImage } = require('../bing/bingImageSearch.js');
+const { getTodaysFood } = require('../APIs/jamix/jamix.js');
+const { searchImage } = require('../APIs/bing/bingImageSearch.js');
 
 
 async function sendMorningMessage(client, yleinenChannel) {
@@ -48,13 +48,13 @@ async function sendLunchEmbed(client, yleinenChannel, bingAPI) {
                     .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
                     .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
                     .setColor(getRandomColor());
-                channel.send({ content:'@everyone', embeds: [embed] });
+                channel.send({ embeds: [embed] });
                 console.log('Sent lunch embed.');
             } else {
                 console.error('Signe menu is empty.');
             }
         } else {
-            console.error('Cannot send lunch embed. Channel not found.');
+            console.error('Cannot send lunch embed.');
         }
     } catch (error) {
         console.error('Error in sendLunchEmbed:', error);
@@ -114,7 +114,7 @@ function sendFridayMessage(client, yleinenChannel) {
 
     if (channel) {
         const fridayVideo = '../media/video/Perjantai_Video.mp4';
-        channel.send({ files: [fridayVideo] });
+        channel.send({ content: '@everyone', files: [fridayVideo] });
         console.log('Sent Friday video.');
     } else {
         console.error('Cannot send Friday video.');
