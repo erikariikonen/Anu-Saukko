@@ -2,7 +2,7 @@
 Bot for Discordjs
 
 ## TODO
-- [ ] Google API + Menu image
+- [x] Google API + Menu image *Decided to go with Bing API instead.
 - [x] JAMIX API
 - [ ] TTS API for "anu sano"
 - [x] Music player
