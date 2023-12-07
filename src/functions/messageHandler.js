@@ -2,16 +2,15 @@ const countTokens = require('../openai/count-tokens.js');
 const openai = require('../openai/openai.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState } = require('@discordjs/voice');
 const path = require('path');
-const { RepeatMode } = require("discord-music-player");
 const fs = require('fs');
 const { getTodaysFood } = require('../jamix/jamix.js');
 const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('./randomColor.js');
-const axios = require('axios');
+const { searchImage } = require('../bing/bingImageSearch.js');
 
 
 
-async function handleMessageCreate(client, message) {
+async function handleMessageCreate(client, message, bingAPI) {
     const delay = 1000;
 
     if (message.author === message.client.user) {
@@ -81,11 +80,11 @@ async function handleMessageCreate(client, message) {
         if (lastRequestTime !== null) {
             const currentTime = new Date();
             const timeDifference = currentTime - lastRequestTime;
-            const timeRemaining = 60000 - timeDifference; // 60 seconds in milliseconds
+            const timeRemaining = 60000 - timeDifference;
     
             if (timeRemaining > 0) {
                 console.log(`Rate limit reached. Pausing for ${timeRemaining / 1000} seconds.`);
-                return; // Pause the script
+                return;
             }
         }
 
@@ -122,7 +121,7 @@ async function handleMessageCreate(client, message) {
             console.log(`Rate limit reached. Pausing for 60 seconds.`);
             requestCount = 0;
             lastRequestTime = new Date();
-            return; // Pause the script
+            return;
         }
 
         console.log(gptMessages, '\x1b[33m Anu sanoi: ' + response.toString() + '\x1b[0m');
@@ -159,7 +158,7 @@ async function handleMessageCreate(client, message) {
 
     if (message.content.toLowerCase().startsWith('anu sano')) {
         const command = message.content.slice('anu sano'.length).trim().toLowerCase();
-        const mp3Path = path.join(__dirname, '..', 'media', `${command}.mp3`);
+        const mp3Path = path.join(__dirname, '..', 'media', 'anusano', `${command}.mp3`);
 
         if (!message.member.voice?.channel) {
             return message.channel.send('Mene äänikanavaan ensin! En voi tulla sanomaan asiasta muuten.');
@@ -264,38 +263,76 @@ async function handleMessageCreate(client, message) {
         const ellenMenu = await getTodaysFood('ellen');
 
         if(!command) {
-            const embed = new EmbedBuilder()
-            .setTitle('Anu S:n antimet tänään 😎')
-            .addFields(
-                { name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' },
-                { name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' }
-            )
-            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
-            .setImage('https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
-            .setColor(getRandomColor());
-            message.reply({ embeds: [embed] });
+            if (signeMenu.trim() !== '') {
+                const firstMenuItem = signeMenu.split('\n')[0];
+                const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
+                let imageSearchUrl;
+
+                try {
+                    imageSearchUrl = await searchImage(cleanedQuery, bingAPI);
+                    console.log('Bing Image Search Result:', imageSearchUrl);
+                } catch (searchError) {
+                    console.error('Error in image search:', searchError.message);
+                }
+
+                const embed = new EmbedBuilder()
+                .setTitle('Anu S:n antimet tänään 😎')
+                .addFields(
+                    { name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' },
+                    { name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' }
+                )
+                .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+                .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+                .setColor(getRandomColor());
+                message.reply({ embeds: [embed] });
+            }
         }
 
         if(command === 'signe') {
-            const embed = new EmbedBuilder()
-            .setTitle('Anu S:n antimet tänään 😎')
-            .addFields({ name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' })
-            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
-            .setImage('https://www.salpaus.fi/wp-content/uploads/2022/02/Signe-900x900-1-scaled.jpg')
-            .setColor(getRandomColor())
-            message.reply({ embeds: [embed] });
+            if (signeMenu.trim() !== '') {
+                const firstMenuItem = signeMenu.split('\n')[0];
+                const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
+                let imageSearchUrl;
+
+                try {
+                    imageSearchUrl = await searchImage(cleanedQuery, bingAPI);
+                    console.log('Bing Image Search Result:', imageSearchUrl);
+                } catch (searchError) {
+                    console.error('Error in image search:', searchError.message);
+                }
+
+                const embed = new EmbedBuilder()
+                .setTitle('Anu S:n antimet tänään 😎')
+                .addFields({ name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' })
+                .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+                .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+                .setColor(getRandomColor());
+                message.reply({ embeds: [embed] });
+            }
         }
         
         if(command === 'ellen') {
-            const embed = new EmbedBuilder()
-            .setTitle('Anu S:n antimet tänään 😎')
-            .addFields({ name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' })
-            .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
-            .setImage('https://www.salpaus.fi/wp-content/uploads/2017/10/Kampus1profiili-900x900.jpg')
-            .setColor(getRandomColor());
-        message.reply({ embeds: [embed] });
+            if (ellenMenu.trim() !== '') {
+                const firstMenuItem = ellenMenu.split('\n')[0];
+                const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
+                let imageSearchUrl;
+
+                try {
+                    imageSearchUrl = await searchImage(cleanedQuery, bingAPI);
+                    console.log('Bing Image Search Result:', imageSearchUrl);
+                } catch (searchError) {
+                    console.error('Error in image search:', searchError.message);
+                }
+
+                const embed = new EmbedBuilder()
+                .setTitle('Anu S:n antimet tänään 😎')
+                .addFields({ name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' })
+                .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+                .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+                .setColor(getRandomColor());
+                message.reply({ embeds: [embed] });
+            }
         }
-        
     }
 
     const randomNum = Math.random();
@@ -323,6 +360,23 @@ async function handleMessageCreate(client, message) {
         message.react(randomEmoji)
             .then(() => console.log(`\x1b[1;36mAnu reacted with ${randomEmoji} to ${message.author.tag}'s message: ${message.content}\x1b[0m`))
             .catch(console.error);
+    }
+
+    if (message.content.toLowerCase().startsWith('test')) {
+        const args = message.content.slice('test'.length).trim().split(/ +/);
+        const command = args.shift().toLowerCase();
+    
+        if (command === 'bing') {
+            try {
+                const imgResult = await searchImage('chicken', bingAPI);
+    
+                console.log('Bing Image Search Result:', imgResult);
+                message.reply(imgResult || 'No image found.');
+            } catch (error) {
+                console.error('Error in Bing Image Search test:', error);
+                message.reply('Error in Bing Image Search test. Check the logs for details.');
+            }
+        }
     }
 }
 

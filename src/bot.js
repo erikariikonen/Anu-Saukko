@@ -4,15 +4,15 @@ const { Client, IntentsBitField, ActivityType, } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const chatgptCommand = require('./functions/chatgptCommand.js');
-const { scheduleMessage } = require('./functions/scheduler.js');
+const { scheduleMessage, scheduleFridayMessage } = require('./functions/scheduler.js');
 const { handleMessageCreate } = require('./functions/messageHandler.js');
 const { Player } = require("discord-music-player");
-
 
 const token = process.env.DISCORDJS_BOT_TOKEN;
 const app = process.env.APP_ID
 const pogoy = process.env.GUILD_ID
 const yleinenChannel = process.env.YLEINEN_ID
+const bingAPI = process.env.BING_API
 
 
 const client = new Client({
@@ -28,7 +28,8 @@ const client = new Client({
 
 client.once('ready', () => {
     console.log(`${client.user.tag} on hereillä.`);
-    scheduleMessage(client, yleinenChannel);
+    scheduleMessage(client, yleinenChannel, bingAPI);
+    scheduleFridayMessage(client, yleinenChannel);
     client.user.setActivity({
         name: 'Neekaboom 💥',
         type: ActivityType.Watching,
@@ -42,7 +43,7 @@ const player = new Player(client, {
 client.player = player;
 
 client.on('messageCreate', (message) => {
-    handleMessageCreate(client, message);
+    handleMessageCreate(client, message, bingAPI);
 });
 
 const commands = [
