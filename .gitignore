@@ -1,6 +1,8 @@
 ffmpeg.exe
 schedulerold.js
 
+node_modules
+
 # local env files
 .env
 .env*.local
