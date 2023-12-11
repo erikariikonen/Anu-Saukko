@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const path = require('path');
 const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('./randomColor.js');
 const { getTodaysFood } = require('../APIs/jamix/jamix.js');
@@ -14,7 +13,7 @@ async function sendMorningMessage(client, yleinenChannel) {
         channel.send({ files:[nukutti] });
         console.log('Sent morning message.');
     } else {
-        console.error('Cannot send morning message. ');
+        console.error('Cannot send morning message.');
     }
 }
 
@@ -24,7 +23,7 @@ async function sendLunchEmbed(client, yleinenChannel, bingAPI) {
     try {
         const signeMenu = await getTodaysFood('signe');
         const ellenMenu = await getTodaysFood('ellen');
-
+    
         if (channel) {
             const menusToDisplay = [];
 
@@ -48,32 +47,32 @@ async function sendLunchEmbed(client, yleinenChannel, bingAPI) {
                 const firstMenuItem = menusToDisplay[0].value.split('\n')[0];
                 const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
                 let imageSearchUrl;
-
+    
                 try {
                     imageSearchUrl = await searchImage(cleanedQuery, bingAPI);
                     console.log('Bing Image Search Result:', imageSearchUrl);
                 } catch (searchError) {
                     console.error('Error in image search:', searchError.message);
                 }
-
+    
                 const embed = new EmbedBuilder()
                     .setTitle('Anu S:n antimet tänään 😎');
-
+    
                 menusToDisplay.forEach(menu => {
                     embed.addFields({ name: `**\`${menu.name}\`**`, value: menu.value + `\n\n${menu.url}` });
                 });
-
+    
                 embed.setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
                     .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
                     .setColor(getRandomColor());
-
+    
                 channel.send({ embeds: [embed] });
-                console.log('Sent lunch embed.');
+                console.log('Sent lunch message.');
             } else {
-                console.error('Both menus are empty today.');
+                console.error('Signe menu is empty.');
             }
         } else {
-            console.error('Cannot send lunch embed. Anu doesn\'t have access to the channel or permission to send.');
+            console.error('Cannot send lunch embed. Channel not found.');
         }
     } catch (error) {
         console.error('Error in sendLunchEmbed:', error);
@@ -127,39 +126,5 @@ function scheduleNextMessage(client, yleinenChannel, bingAPI) {
         scheduleMessage(client, yleinenChannel, bingAPI);
     }, delayNextDay);
 }
-
-// function sendFridayMessage(client) {
-//     const channel = client.channels.cache.get('1167048900318855198');
-
-//     if (channel) {
-//         const fridayVideo = path.join(__dirname, '..', 'media', 'video','Perjantai_Video.mp4');
-//         channel.send({ content: '@everyone', files: [fridayVideo] });
-//         console.log('Sent Friday video.');
-//     } else {
-//         console.error('Cannot send Friday video. Anu doesn\'t have access to the channel or permission to send.');
-//     }
-// }
-
-// function scheduleFridayMessage(client) {
-//     const helsinkiTimeZone = 'Europe/Helsinki';
-//     const now = moment().tz(helsinkiTimeZone);
-
-//     if (now.day() === 5 && now.isAfter(moment().tz(helsinkiTimeZone).set({ hour: 20, minute: 0, second: 0, millisecond: 0 }))) {
-//         sendFridayMessage(client);
-//     } else {
-//         const nextFriday = moment().tz(helsinkiTimeZone).day(5).set({ hour: 20, minute: 0, second: 0, millisecond: 0 });
-//         const delayNextFriday = nextFriday.diff(now);
-
-//         const timeoutId = setTimeout(() => {
-//             try {
-//                 sendFridayMessage(client);
-//             } catch (error) {
-//                 console.error('Error sending Friday video:', error);
-//             }
-//             clearTimeout(timeoutId);
-//             scheduleFridayMessage(client);
-//         }, delayNextFriday);
-//     }
-// }
 
 module.exports = { scheduleMessage };

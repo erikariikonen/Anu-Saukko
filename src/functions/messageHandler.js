@@ -310,7 +310,7 @@ async function handleMessageCreate(client, message, bingAPI) {
             }
         }
 
-        if(command === 'signe') {
+        if (command === 'signe') {
             if (signeMenu.trim() !== '') {
                 const firstMenuItem = signeMenu.split('\n')[0];
                 const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
@@ -333,7 +333,7 @@ async function handleMessageCreate(client, message, bingAPI) {
             }
         }
         
-        if(command === 'ellen') {
+        if (command === 'ellen') {
             if (ellenMenu.trim() !== '') {
                 const firstMenuItem = ellenMenu.split('\n')[0];
                 const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
