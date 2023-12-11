@@ -46,7 +46,7 @@ async function handleMessageCreate(client, message, bingAPI) {
     if (message.content.toLowerCase() === 'anu help') {
         setTimeout(() => {
             message.reply(
-                'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu x\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista | *signe*, *ellen*\n4. 🤙 - anu saako x\n5. 🤔 - anu sano x\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita x/linkki\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
+                'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu *viesti*\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista | *signe*, *ellen*\n4. 🤙 - anu saako *viesti*\n5. 🤔 - anu sano *mitä osaat sanoa listalta*\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita *laulun nimi/linkki*\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
                 );
         }, delay);
     }
@@ -184,7 +184,7 @@ async function handleMessageCreate(client, message, bingAPI) {
             }
         });
     } else if (message.content.toLowerCase().startsWith('anu mitä osaat sanoa')) {
-        const mediaFolder = path.join(__dirname, '..', 'media');
+        const mediaFolder = path.join(__dirname, '..', 'media', 'anusano');
     
         fs.readdir(mediaFolder, (err, files) => {
             if (err) {
@@ -262,29 +262,51 @@ async function handleMessageCreate(client, message, bingAPI) {
         const signeMenu = await getTodaysFood('signe');
         const ellenMenu = await getTodaysFood('ellen');
 
-        if(!command) {
+        if (!command) {
+            const menusToDisplay = [];
+    
             if (signeMenu.trim() !== '') {
-                const firstMenuItem = signeMenu.split('\n')[0];
+                menusToDisplay.push({
+                    name: 'Signe',
+                    value: signeMenu,
+                    url: 'https://tinyurl.com/signemenu'
+                });
+            }
+    
+            if (ellenMenu.trim() !== '') {
+                menusToDisplay.push({
+                    name: 'Ellen',
+                    value: ellenMenu,
+                    url: 'https://tinyurl.com/ellenmenu'
+                });
+            }
+    
+            if (menusToDisplay.length > 0) {
+                const firstMenuItem = menusToDisplay[0].value.split('\n')[0];
                 const cleanedQuery = firstMenuItem.replace(/\*\*|\([^)]*\)/g, '').trim();
                 let imageSearchUrl;
-
+    
                 try {
                     imageSearchUrl = await searchImage(cleanedQuery, bingAPI);
                     console.log('Bing Image Search Result:', imageSearchUrl);
                 } catch (searchError) {
                     console.error('Error in image search:', searchError.message);
                 }
-
+    
                 const embed = new EmbedBuilder()
-                .setTitle('Anu S:n antimet tänään 😎')
-                .addFields(
-                    { name: '**`Signe`**', value: signeMenu + '\n\nhttps://tinyurl.com/signemenu' },
-                    { name: '**`Ellen`**', value: ellenMenu + '\n\nhttps://tinyurl.com/ellenmenu' }
-                )
-                .setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
-                .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
-                .setColor(getRandomColor());
+                    .setTitle('Anu S:n antimet tänään 😎');
+    
+                menusToDisplay.forEach(menu => {
+                    embed.addFields({ name: `**\`${menu.name}\`**`, value: menu.value + `\n\n${menu.url}` });
+                });
+    
+                embed.setThumbnail('https://etk9q8atrca.exactdn.com/wp-content/uploads/2017/10/cropped-salpaus-s-favicon.jpg?strip=all&lossy=1&resize=32%2C32&ssl=1')
+                    .setImage(imageSearchUrl || 'https://cdn-wp.valio.fi/valio-wp-network/sites/2/2023/04/41920-sitruunainen-uunikala.jpeg')
+                    .setColor(getRandomColor());
+    
                 message.reply({ embeds: [embed] });
+            } else {
+                message.reply('Both menus are empty today.');
             }
         }
 
@@ -342,7 +364,7 @@ async function handleMessageCreate(client, message, bingAPI) {
         // list
         const emojis = [
             '😄', '😍', '🎉', '👍', '🌟', '❤️', '🚀', '🐱', '🍕', '🎶',
-            '🔥', '🌈', '👏', '💡', '🍦', '🎨', '🎸', '💻', '🦦',
+            '🔥', '🌈', '👏', '💡', '🍦', '🎨', '🎸', '💻', '🦦', '💯',
         ];
 
         // Face emojis (U+1F600 to U+1F64F)
@@ -352,6 +374,11 @@ async function handleMessageCreate(client, message, bingAPI) {
 
         // Hand emojis (U+1F91A to U+1F93E)
         for (let i = 0x1F91A; i <= 0x1F93E; i++) {
+            emojis.push(String.fromCodePoint(i));
+        }
+
+        // Animal emojis (U+1F400 to U+1F4F0)
+        for (let i = 0x1F400; i <= 0x1F4F0; i++) {
             emojis.push(String.fromCodePoint(i));
         }
 

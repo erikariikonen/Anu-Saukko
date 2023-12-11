@@ -3,7 +3,7 @@ const axios = require('axios');
 const getTodaysFood = async (restaurant) => {
     try {
         let apiUrl;
-    
+
         // API urlit
         if (restaurant.toLowerCase() === 'signe') {
             apiUrl = 'http://fi.jamix.cloud/apps/menuservice/rest/haku/menu/97325/7?lang=fi';
@@ -15,6 +15,11 @@ const getTodaysFood = async (restaurant) => {
 
         const response = await axios.get(apiUrl);
 
+        if (!response.data || !response.data[0] || !response.data[0].menuTypes) {
+            console.error(`Error in Jamix API response: Unexpected or empty menu data for ${restaurant}.`);
+            return '';
+        }
+
         const currentDayOfWeek = new Date().getDay();
 
         const todayMenu = response.data[0].menuTypes[0].menus.find(menu => {
@@ -24,6 +29,7 @@ const getTodaysFood = async (restaurant) => {
         });
 
         if (!todayMenu) {
+            console.error(`Error in Jamix API response: Menu for ${restaurant} is empty today.`);
             return '';
         }
 
@@ -41,7 +47,7 @@ const getTodaysFood = async (restaurant) => {
             });
             return menuItemsWithDiets.join('\n');
         }).join('\n\n');
-    
+
         return todayFood;
     } catch (error) {
         console.error('Error fetching data from Jamix API:', error);

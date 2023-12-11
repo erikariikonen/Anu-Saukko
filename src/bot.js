@@ -29,7 +29,6 @@ const client = new Client({
 client.once('ready', () => {
     console.log(`${client.user.tag} on hereillä.`);
     scheduleMessage(client, yleinenChannel, bingAPI);
-    scheduleFridayMessage(client, yleinenChannel);
     client.user.setActivity({
         name: 'Neekaboom 💥',
         type: ActivityType.Watching,
