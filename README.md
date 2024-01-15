@@ -7,3 +7,6 @@ Bot for Discordjs
 - [ ] TTS API for "anu sano"
 - [x] Music player
 - [x] anu help
+- [ ] improve memory and message handling
+- [ ] implement ai vision (and possibly connect camera)
+- [ ] speaker system

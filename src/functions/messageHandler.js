@@ -95,18 +95,27 @@ async function handleMessageCreate(client, message, bingAPI) {
         const maxTokens = 4096; // gpt-3.5-turbo
         let totalTokens = 0;
     
-        const anuMessages = messages.filter((msg) => msg.content.toLowerCase().startsWith('anu ') && !isIgnoredMessage);
-    
-        anuMessages.forEach((message) => {
-            if (!ignoredPatterns.some(pattern => pattern.test(message.content))) {
-                const tokens = countTokens(message.content);
-    
+        messages.forEach((msg) => {
+            const tokens = countTokens(msg.content);
+
+            if (msg.content.toLowerCase().startsWith('anu ') && !ignoredPatterns.some(pattern => pattern.test(msg.content))) {
                 if (totalTokens + tokens < maxTokens) {
                     totalTokens += tokens;
     
                     gptMessages.push({
-                        role: message.author.bot ? 'assistant' : 'user',
-                        content: message.content,
+                        role: 'user',
+                        content: msg.content,
+                    });
+                }
+            }
+    
+            if (msg.author === message.client.user) {
+                if (totalTokens + tokens < maxTokens) {
+                    totalTokens += tokens;
+    
+                    gptMessages.push({
+                        role: 'assistant',
+                        content: msg.content,
                     });
                 }
             }
