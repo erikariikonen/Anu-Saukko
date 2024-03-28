@@ -24,9 +24,9 @@ async function handleMessageCreate(client, message, bingAPI) {
     const gptMessages = [];
     const ignoredPatterns = [
         /^anu pingaa kaikki$/i,
-        /^anu saako/i,
+        /^anus saako/i,
         /^anu debug stop$/i,
-        /^anu sano/i,
+        /^anu tule sanomaan/i,
         /^anu soita/i,
         /^anu skippaa$/i,
         /^anu stoppaa$/i,
@@ -46,7 +46,7 @@ async function handleMessageCreate(client, message, bingAPI) {
     if (message.content.toLowerCase() === 'anu help') {
         setTimeout(() => {
             message.reply(
-                'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu *viesti*\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista | *signe*, *ellen*\n4. 🤙 - anu saako *viesti*\n5. 🤔 - anu sano *mitä osaat sanoa listalta*\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita *laulun nimi/linkki*\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
+                'Annan muutaman esimerkin suosituista "anu" alkuisista kommennoista:\n\n1. 😈 - anu *viesti*\n2. 🤪 - anu pingaa kaikki\n3. 🥴 - anu ruokalista | *signe*, *ellen*\n4. 🤙 - anu saako *viesti*\n5. 🤔 - anu tule sanomaan *mitä osaat sanoa listalta*\n6. 🙄 - anu mitä osaat sanoa\n7. 😂 - anu soita *laulun nimi/linkki*\n8. 😭 - anu skippaa\n9. 🔥 - anu skippaa kaikki\n10. 💯 - anu stoppaa'
                 );
         }, delay);
     }
@@ -58,7 +58,7 @@ async function handleMessageCreate(client, message, bingAPI) {
     }
 
 
-    const regex = /^anu saako (.+)$/i;
+    const regex = /^anus saako (.+)$/i;
     const match = message.content.toLowerCase().match(regex);
 
     if (match) {
@@ -165,8 +165,8 @@ async function handleMessageCreate(client, message, bingAPI) {
         return;
     }
 
-    if (message.content.toLowerCase().startsWith('anu sano')) {
-        const command = message.content.slice('anu sano'.length).trim().toLowerCase();
+    if (message.content.toLowerCase().startsWith('anu tule sanomaan')) {
+        const command = message.content.slice('anu tule sanomaan'.length).trim().toLowerCase();
         const mp3Path = path.join(__dirname, '..', 'media', 'anusano', `${command}.mp3`);
 
         if (!message.member.voice?.channel) {
@@ -203,7 +203,7 @@ async function handleMessageCreate(client, message, bingAPI) {
     
             const mp3Files = files.filter(file => file.endsWith('.mp3'));
             if (mp3Files.length === 0) {
-                return message.channel.send('En osaa sanoa mitään!');
+                return message.channel.send('En osaa sanoa mitään 😔😟');
             }
     
             const fileNames = mp3Files.map(file => file.replace('.mp3', ''));

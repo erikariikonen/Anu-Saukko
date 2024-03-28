@@ -3,11 +3,11 @@ const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('./randomColor.js');
 const { getTodaysFood } = require('../APIs/jamix/jamix.js');
 const { searchImage } = require('../APIs/bing/bingImageSearch.js');
-
+const path = require('path');
 
 async function sendMorningMessage(client, yleinenChannel) {
     const channel = client.channels.cache.get(yleinenChannel);
-    const nukutti = 'https://media.discordapp.net/attachments/817419166281760799/839931656323596340/image0.gif';
+    const nukutti = path.join(__dirname, '..', 'media', 'img', 'gmvittu.gif');
 
     if (channel) {
         channel.send({ files:[nukutti] });

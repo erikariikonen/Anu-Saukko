@@ -30,7 +30,7 @@ client.once('ready', () => {
     console.log(`${client.user.tag} on hereillä.`);
     scheduleMessage(client, yleinenChannel, bingAPI);
     client.user.setActivity({
-        name: 'Neekaboom 💥',
+        name: 'Neekaboom 💥 ei liity rotuun mitenkään',
         type: ActivityType.Watching,
     });
 });
